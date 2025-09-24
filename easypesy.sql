@@ -1,6 +1,6 @@
-CREATE DATABASE easybuy;
+CREATE DATABASE easypeasy;
 
-USE easybuy;
+USE easypeasy;
 
 CREATE TABLE usuario(
     id INT AUTO_INCREMENT PRIMARY KEY,
