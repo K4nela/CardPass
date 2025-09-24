@@ -39,6 +39,11 @@ CREATE TABLE dependente(
     INSERT INTO dependente (id_dependente ,id_responsavel) VALUES
     (3,1),
     (4,2);
+    
+CREATE TABLE administrador(
+    id_admin INT PRIMARY KEY,
+    FOREIGN KEY (id_admin) REFERENCES usuario(id)
+);
 
 CREATE TABLE listaDeDesejos (
     id_produto INT AUTO_INCREMENT PRIMARY KEY,
@@ -61,10 +66,10 @@ CREATE TABLE pedidos(
     id_prod INT NOT NULL,
     id_depe INT NOT NULL,
     id_resp INT NOT NULL,
-    dataPedido DATETIME DEFAULT NOW() PRIMARY KEY,
-    Foreign Key (id_prod) REFERENCES listaDeDesejos (id_produto),
-    Foreign Key (id_depe) REFERENCES dependente (id_dependente),
-    Foreign Key (id_resp) REFERENCES responsavel (id_responsavel)
+    dataPedido DATETIME DEFAULT NOW(),
+    FOREIGN KEY (id_prod) REFERENCES listaDeDesejos (id_produto),
+    FOREIGN KEY (id_depe) REFERENCES dependente (id_dependente),
+    FOREIGN KEY (id_resp) REFERENCES responsavel (id_responsavel)
 );
     -- inserindo os pedidos, ligando os pedidos desejados pelos dependentes aos responsáveis
     INSERT INTO pedidos(id_prod, id_depe, id_resp, dataPedido)VALUES
@@ -74,9 +79,10 @@ CREATE TABLE pedidos(
     (4, 4, 2, NOW());
 
 CREATE TABLE status (
-    id_status INT PRIMARY KEY,
+    id_status INT AUTO_INCREMENT PRIMARY KEY,
+    id_pedido INT NOT NULL,
     status ENUM('Pendente', 'Pago', 'Finalizado', 'Cancelado'),
-    Foreign Key (id_status) REFERENCES pedidos(id_pedido)
+    FOREIGN KEY (id_pedido) REFERENCES pedidos(id_pedido)
 );
     -- inserindo o status dos pedidos através de id
     INSERT INTO status(id_status, status)VALUES
@@ -86,16 +92,15 @@ CREATE TABLE status (
     (4,'Pendente');
     
 CREATE TABLE historico(
-    id_h INT AUTO_INCREMENT PRIMARY KEY,
-    id_p INT NOT NULL,
-    id_s INT NOT NULL,
+    id_historico INT AUTO_INCREMENT PRIMARY KEY,
+    id_status INT NOT NULL,
+    id_pedido INT NOT NULL,
     dataH DATETIME DEFAULT NOW(),
-    Foreign Key (id_s) REFERENCES status(id_status),
-    Foreign Key (id_p) REFERENCES pedidos(id_pedido)
+    FOREIGN KEY (id_pedido) REFERENCES pedidos(id_pedido)
 );
     -- inserindo historico registrando o pedido e o seu status
-    INSERT INTO historico(id_p, id_s, dataH)VALUES
-    (1, 1,NOW()),
-    (2, 2,NOW()),
-    (3, 3,NOW()),
-    (4, 4,NOW());
+    INSERT INTO historico(id_pedido, id_status, dataH)VALUES
+    (1,1,NOW()),
+    (2,2,NOW()),
+    (3,NOW()),
+    (4,NOW());
