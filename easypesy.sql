@@ -1,106 +1,139 @@
-CREATE DATABASE easypeasy;
+-- cria o banco
+CREATE DATABASE easypeasy2;
+USE easypeasy2;
 
-USE easypeasy;
-
-CREATE TABLE usuario(
+-- tabela usuario
+CREATE TABLE usuario (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    nome VARCHAR(100),
-    email VARCHAR(100) UNIQUE,
-    senha VARCHAR(100),
+    nome VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    senha VARCHAR(100) NOT NULL,
     endereco VARCHAR(200),
     telefone VARCHAR(20)
-);-- criei aqui uma tabela generalizando as pessoas que farao cadastro no app
-  
-    -- Inserindo usuários 
-    INSERT INTO usuario ( nome, email, senha, endereco, telefone) VALUES
-    ( 'João Silva', 'joao.silva@gmail.com', '1234', 'Rua A, 123', '61999999999'),
-    ( 'Maria Souza', 'maria.souza@gmail.com', '1234', 'Rua B, 456', '61988888888'),
-    ( 'Carlos Oliveira', 'carlos.oliveira@gmail.com', '1234', 'Rua C, 789', '61977777777'),
-    ( 'Ana Pereira', 'ana.pereira@gmail.com', '1234', 'Rua D, 101', '61966666666');
-
-CREATE TABLE responsavel(
-    id_responsavel INT PRIMARY KEY,
-    Foreign Key (id_responsavel) REFERENCES usuario(id)
-);-- a pessoa pode ser um responsavel
-
-    -- inserindo os usuários q são responsáveis 
-    INSERT INTO responsavel (id_responsavel) VALUES
-    (1),
-    (2);
-
-CREATE TABLE dependente(
-    id_dependente INT PRIMARY KEY,
-    id_responsavel INT NOT NULL,
-    Foreign Key (id_dependente) REFERENCES usuario (id),
-    Foreign Key (id_responsavel) REFERENCES responsavel (id_responsavel)
-);-- a pessoa pode ser um dependente vinculado a um responsável
-
-    -- inserindo os usuários q são responsáveis 
-    INSERT INTO dependente (id_dependente ,id_responsavel) VALUES
-    (3,1),
-    (4,2);
-    
-CREATE TABLE administrador(
-    id_admin INT PRIMARY KEY,
-    FOREIGN KEY (id_admin) REFERENCES usuario(id)
 );
 
+INSERT INTO usuario (nome, email, senha, endereco, telefone) VALUES
+('João Silva', 'joao.silva@gmail.com', '1234', 'Rua A, 123', '61999999999'),
+('Maria Souza', 'maria.souza@gmail.com', '1234', 'Rua B, 456', '61988888888'),
+('Carlos Oliveira', 'carlos.oliveira@gmail.com', '1234', 'Rua C, 789', '61977777777'),
+('Ana Pereira', 'ana.pereira@gmail.com', '1234', 'Rua D, 101', '61966666666'),
+('Maria Eduarda', 'maria.eduarda@gmail.com', '1234', 'Rua E, 102', '61955555555');
+
+-- tabela administrador
+CREATE TABLE administrador (
+    id_administrador INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT UNIQUE,
+    FOREIGN KEY (id_usuario) REFERENCES usuario(id)
+);
+
+INSERT INTO administrador (id_usuario) VALUES
+(5);
+
+-- tabela familiar
+CREATE TABLE familiar (
+    id_familiar INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT UNIQUE,
+    FOREIGN KEY (id_usuario) REFERENCES usuario(id)
+);
+
+INSERT INTO familiar (id_usuario) VALUES
+(1),
+(2);
+
+-- tabela idoso
+CREATE TABLE idoso (
+    id_idoso INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT UNIQUE,
+    FOREIGN KEY (id_usuario) REFERENCES usuario(id)
+);
+
+INSERT INTO idoso (id_usuario) VALUES
+(3),
+(4);
+
+-- tabela monitora
+CREATE TABLE monitora (
+    id_familiar INT,
+    id_idoso INT,
+    PRIMARY KEY (id_familiar, id_idoso),
+    FOREIGN KEY (id_familiar) REFERENCES familiar(id_familiar),
+    FOREIGN KEY (id_idoso) REFERENCES idoso(id_idoso)
+);
+
+INSERT INTO monitora (id_familiar, id_idoso) VALUES 
+(1, 1),
+(2, 2),
+(1, 2);
+
+-- tabela listaDeDesejos
 CREATE TABLE listaDeDesejos (
-    id_produto INT AUTO_INCREMENT PRIMARY KEY,
-    nomeItem VARCHAR (250),
-    descricao VARCHAR (300),
-    quantidade INT NOT NULL,
-    nomeLoja VARCHAR (250),
-    link VARCHAR (300)
+    id_lista INT AUTO_INCREMENT PRIMARY KEY,
+    data_solicitacao DATE,
+    id_idoso INT,
+    FOREIGN KEY (id_idoso) REFERENCES idoso(id_idoso)
 );
-    -- inserindo itens desejados à lista de desejos dos dependentes
-        INSERT INTO listaDeDesejos (nomeItem, descricao, quantidade, nomeLoja, link) VALUES
-    ('Blusa do Brasil', 'Tamanho: G', 2, 'Loja TeamShirt','https://shopee.com'),
-    ('Óculos Bayoneta', 'Moledo preto', 1, 'Loja Óptica', 'https://firmo.com'),
-    ('Chinelo Ortopedico', 'Chinelo tamanho 40', 1, 'Loja Calçados', 'https://shein.com'),
-    ('Samgsung A15', 'Modelo 5G', 1, 'Loja Tech', 'https://mercadolivre.com');
 
+INSERT INTO listaDeDesejos (id_idoso, data_solicitacao) VALUES
+(1, NOW()),
+(1, NOW()),
+(2, NOW()),
+(2, NOW());
 
-CREATE TABLE pedidos(
-    id_pedido INT AUTO_INCREMENT PRIMARY KEY,
-    id_prod INT NOT NULL,
-    id_depe INT NOT NULL,
-    id_resp INT NOT NULL,
-    dataPedido DATETIME DEFAULT NOW(),
-    FOREIGN KEY (id_prod) REFERENCES listaDeDesejos (id_produto),
-    FOREIGN KEY (id_depe) REFERENCES dependente (id_dependente),
-    FOREIGN KEY (id_resp) REFERENCES responsavel (id_responsavel)
+-- tabela itens
+CREATE TABLE itens (
+    id_item INT AUTO_INCREMENT PRIMARY KEY,
+    nome_item VARCHAR(100) NOT NULL,
+    nome_loja VARCHAR(100),
+    descricao TEXT,
+    quantidade INT,
+    link VARCHAR(255)
 );
-    -- inserindo os pedidos, ligando os pedidos desejados pelos dependentes aos responsáveis
-    INSERT INTO pedidos(id_prod, id_depe, id_resp, dataPedido)VALUES
-    (1, 3, 1, NOW()),
-    (2, 3, 1, NOW()),
-    (3, 4, 2, NOW()),
-    (4, 4, 2, NOW());
 
+INSERT INTO itens (nome_item, descricao, quantidade, nome_loja, link) VALUES
+('Blusa do Brasil', 'Tamanho: G', 2, 'Loja TeamShirt', 'https://shopee.com'),
+('Óculos Bayoneta', 'Modelo preto', 1, 'Loja Óptica', 'https://firmo.com'),
+('Chinelo Ortopedico', 'Chinelo tamanho 40', 1, 'Loja Calçados', 'https://shein.com'),
+('Samsung A15', 'Modelo 5G', 1, 'Loja Tech', 'https://mercadolivre.com');
+
+-- tabela lista_itens
+CREATE TABLE lista_itens (
+    id_lista INT,
+    id_item INT,
+    PRIMARY KEY (id_lista, id_item),
+    FOREIGN KEY (id_lista) REFERENCES listaDeDesejos(id_lista),
+    FOREIGN KEY (id_item) REFERENCES itens(id_item)
+);
+
+INSERT INTO lista_itens (id_lista, id_item) VALUES
+(1, 1),
+(1, 2),
+(2, 3),
+(2, 4);
+
+-- tabela status
 CREATE TABLE status (
     id_status INT AUTO_INCREMENT PRIMARY KEY,
-    id_pedido INT NOT NULL,
-    status ENUM('Pendente', 'Pago', 'Finalizado', 'Cancelado'),
-    FOREIGN KEY (id_pedido) REFERENCES pedidos(id_pedido)
+    nome_status VARCHAR(50) NOT NULL
 );
-    -- inserindo o status dos pedidos através de id
-    INSERT INTO status(id_status, status)VALUES
-    (1,'Pendente'),
-    (2,'Pendente'),
-    (3,'Pendente'),
-    (4,'Pendente');
-    
-CREATE TABLE historico(
+
+INSERT INTO status (nome_status) VALUES
+('Pendente'),
+('Em andamento'),
+('Concluído'),
+('Cancelado');
+
+-- tabela historico
+CREATE TABLE historico (
     id_historico INT AUTO_INCREMENT PRIMARY KEY,
-    id_status INT NOT NULL,
-    id_pedido INT NOT NULL,
-    dataH DATETIME DEFAULT NOW(),
-    FOREIGN KEY (id_pedido) REFERENCES pedidos(id_pedido)
+    data DATE NOT NULL,
+    id_lista INT,
+    id_status INT,
+    FOREIGN KEY (id_lista) REFERENCES listaDeDesejos(id_lista),
+    FOREIGN KEY (id_status) REFERENCES status(id_status)
 );
-    -- inserindo historico registrando o pedido e o seu status
-    INSERT INTO historico(id_pedido, id_status, dataH)VALUES
-    (1,1,NOW()),
-    (2,2,NOW()),
-    (3,NOW()),
-    (4,NOW());
+
+INSERT INTO historico (id_lista, id_status, data) VALUES
+(1, 1, NOW()),
+(2, 2, NOW()),
+(3, 3, NOW()),
+(4, 4, NOW());
